@@ -9,7 +9,7 @@
 		<version>2.0.0</version>
 	</parent>
 	<artifactId>rdf-file-sftp</artifactId>
-	<version>${rdf.file.oss.version}</version>
+	<version>${rdf.file.sftp.version}</version>
 	<name>RDF FILE SFTP</name>
 	<url>http://maven.apache.org</url>
 
@@ -25,7 +25,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>jsch</groupId>
+			<groupId>com.jcraft</groupId>
 			<artifactId>jsch</artifactId>
 			<version>0.1.54</version>
 		</dependency>

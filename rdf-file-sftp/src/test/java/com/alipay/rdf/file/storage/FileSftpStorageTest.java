@@ -2,11 +2,13 @@ package com.alipay.rdf.file.storage;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,14 +18,14 @@ import com.alipay.rdf.file.interfaces.FileStorage.FilePathFilter;
 import com.alipay.rdf.file.model.FileInfo;
 import com.alipay.rdf.file.model.StorageConfig;
 import com.alipay.rdf.file.operation.AbstractSftpOperationTemplate;
+import com.alipay.rdf.file.operation.SftpOperationFactory;
 import com.alipay.rdf.file.operation.SftpOperationParamEnums;
 import com.alipay.rdf.file.operation.SftpOperationResponse;
+import com.alipay.rdf.file.operation.SftpOperationTypeEnums;
 import com.alipay.rdf.file.sftp.SftpTestUtil;
 import com.alipay.rdf.file.sftp.TestInitOperation;
 import com.alipay.rdf.file.util.RdfFileUtil;
-import com.alipay.rdf.file.util.SFTPHelper;
-
-import junit.framework.Assert;
+import com.alipay.rdf.file.sftp.TemporaryFolderUtil;
 
 /**
  * 测试用例
@@ -33,6 +35,8 @@ import junit.framework.Assert;
  * 注意owner和group还有权限
  */
 public class FileSftpStorageTest {
+
+    TemporaryFolderUtil temporaryFolderUtil = new TemporaryFolderUtil();
 
     StorageConfig storageConfig;
 
@@ -51,9 +55,9 @@ public class FileSftpStorageTest {
 
     String remoteCopyDst = "copydir/test_file_1_cp.txt";
 
-    String localTmpDir = "/Users/iminright-ali/";
-    String localDownloadDst = RdfFileUtil.combinePath(localTmpDir, "sftp/download_test.txt");
-    String localTmpFileName = RdfFileUtil.combinePath(localTmpDir, "sftp/localFile_1.txt");
+    String localTmpDir;
+    String localDownloadDst;
+    String localTmpFileName;
 
     String remoteUploadDir = "uploaddir";
     String remoteUploadFileName = "upload_test.txt";
@@ -68,10 +72,20 @@ public class FileSftpStorageTest {
     public void setup(){
         storageConfig = SftpTestUtil.getStorageConfig();
         fileStorage = FileFactory.createStorage(storageConfig);
+        try {
+            temporaryFolderUtil.create();
+        } catch (IOException e) {
+            throw new RuntimeException("获取临时目录异常", e);
+        }
+        localTmpDir = temporaryFolderUtil.getRoot().getName();
+        localDownloadDst = RdfFileUtil.combinePath(localTmpDir, "sftp/download_test.txt");
+        localTmpFileName = RdfFileUtil.combinePath(localTmpDir, "sftp/localFile_1.txt");
     }
 
     @Test
     public void testAll() throws Exception{
+
+        checkHealth();
 
         prepare();
 
@@ -82,14 +96,25 @@ public class FileSftpStorageTest {
         }
     }
 
+    private void checkHealth(){
+        AbstractSftpOperationTemplate<Boolean> healthCheckOperation
+                = SftpOperationFactory.getOperation(SftpOperationTypeEnums.HEALTH_CHECK);
+        FileSftpStorage fileSftpStorage = (FileSftpStorage)fileStorage;
+        SftpOperationResponse<Boolean> response = healthCheckOperation
+                .handle(fileSftpStorage.getUserInfo(), null);
+        Assert.assertTrue(response.isSuccess());
+        Assert.assertTrue(response.getData());
+    }
+
     private void prepare() throws Exception{
+
         try{
             fileStorage.listAllFiles(ROOT_PATH);
         }catch (Exception e){
             System.out.println("开始设置ROOT_PATH");
             FileSftpStorage sftpStorage = (FileSftpStorage)fileStorage;
-            Map<SftpOperationParamEnums, String> params = new HashMap<SftpOperationParamEnums, String>();
-            params.put(SftpOperationParamEnums.TARGET_DIR, buildPath("dummy.txt"));
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(SftpOperationParamEnums.TARGET_DIR.toString(), buildPath("dummy.txt"));
             SftpOperationResponse<Boolean> response = initOperation.handle(sftpStorage.getUserInfo(), params);
             if(!response.isSuccess()){
                 throw new RuntimeException("设置ROOT_PATH失败,请尝试手动设置");
