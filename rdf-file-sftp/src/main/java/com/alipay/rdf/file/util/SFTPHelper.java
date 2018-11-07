@@ -121,6 +121,7 @@ public class SFTPHelper {
 		} catch (SftpException e) {
 			// 如目录不存在，则创建之
 			try {
+				sftp.cd("/");
 				sftp.mkdir(currentPath);
 				RdfFileLogUtil.common.info("rdf-file#SFTPHelper"
 						+ ".mkdirIfNotExist,create path={" + currentPath + "} success.");
