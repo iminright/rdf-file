@@ -118,6 +118,13 @@ public interface FileStorage {
     void delete(String fullPath);
 
     /**
+     * 上传并重命名文件
+     * <li>上传并重命名文件
+     * <li>如果删除失败抛出RdfFileException
+     */
+    void uploadAndRename(String srcFile, String middleFile, String toFile, boolean override);
+
+    /**
      * 文件过滤接口
      * 
      * @author zhao.yan

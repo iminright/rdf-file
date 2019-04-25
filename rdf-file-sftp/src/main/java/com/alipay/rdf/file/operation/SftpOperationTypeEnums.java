@@ -12,6 +12,7 @@ package com.alipay.rdf.file.operation;
 public enum SftpOperationTypeEnums {
 
     UPLOAD,
+    UPLOAD_AND_RENAME,
     DOWNLOAD,
     COPY,
     RENAME,

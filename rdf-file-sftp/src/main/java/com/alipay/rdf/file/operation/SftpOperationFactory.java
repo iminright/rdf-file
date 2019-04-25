@@ -4,23 +4,18 @@
  */
 package com.alipay.rdf.file.operation;
 
+import com.alipay.rdf.file.exception.RdfErrorEnum;
+import com.alipay.rdf.file.exception.RdfFileException;
+import com.alipay.rdf.file.interfaces.FileSftpStorageConstants;
+import com.alipay.rdf.file.util.*;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.SftpATTRS;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
-
-import com.alipay.rdf.file.exception.RdfErrorEnum;
-import com.alipay.rdf.file.exception.RdfFileException;
-import com.alipay.rdf.file.interfaces.FileSftpStorageConstants;
-import com.alipay.rdf.file.util.RdfFileLogUtil;
-import com.alipay.rdf.file.util.RdfFileUtil;
-import com.alipay.rdf.file.util.SFTPHelper;
-import com.alipay.rdf.file.util.SFTPLogMonitor;
-import com.alipay.rdf.file.util.SFTPUserInfo;
-import com.alipay.rdf.file.util.SftpThreadContext;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.SftpATTRS;
 
 /**
  * sftp操作工厂
@@ -445,6 +440,59 @@ public class SftpOperationFactory {
         }
     };
 
+    /**
+     * copy文件。
+     *
+     * SFTPUserInfo
+     *   SFTP用户信息
+     * SftpOperationTypeEnums.UPLOAD_AND_RENAME_OPERATION
+     * SftpOperationParamEnums.SOURCE_FILE
+     * SftpOperationParamEnums.TARGET_FILE
+     * SftpOperationParamEnums.MIDDLE_FILE
+     * 先下载到本地临时目录再上传,再重命名
+     */
+    private static final AbstractSftpOperationTemplate UPLOAD_AND_RENAME_OPERATION
+            = new AbstractSftpOperationTemplate<Boolean>() {
+
+        @Override
+        protected void initOperationType() {
+            this.setOperationType(SftpOperationTypeEnums.UPLOAD_AND_RENAME.toString());
+        }
+
+        @Override
+        protected SftpOperationResponse<Boolean> doBusiness(SFTPUserInfo user
+                , Map<String, String> params) throws Exception{
+            SftpOperationResponse<Boolean> response = new SftpOperationResponse<Boolean>();
+
+            String middleFile = params.get(SftpOperationParamEnums.MIDDLE_FILE.toString());
+            String srcFile = params.get(SftpOperationParamEnums.SOURCE_FILE.toString());
+            String targetFile = params.get(SftpOperationParamEnums.TARGET_FILE.toString());
+
+            Map<String, String> uploadOperationParams
+                    = new HashMap<String, String>();
+            uploadOperationParams.put(SftpOperationParamEnums.TARGET_FILE.toString(), middleFile);
+            uploadOperationParams.put(SftpOperationParamEnums.SOURCE_FILE.toString(), srcFile);
+            UPLOAD_OPERATION.doBusiness(user, uploadOperationParams);
+
+            Map<String, String> renameOperationParams
+                    = new HashMap<String, String>();
+            renameOperationParams.put(SftpOperationParamEnums.TARGET_FILE.toString(), targetFile);
+            renameOperationParams.put(SftpOperationParamEnums.SOURCE_FILE.toString(), middleFile);
+            RENAME_OPERATION.doBusiness(user, renameOperationParams);
+
+            response.setData(true);
+            response.setSuccess(true);
+            return response;
+        }
+
+        @Override
+        protected boolean checkBeforeDoBiz(SFTPUserInfo user, Map<String, String> params) {
+            return params.containsKey(SftpOperationParamEnums.SOURCE_FILE.toString())
+                    && params.containsKey(SftpOperationParamEnums.TARGET_FILE.toString())
+                    && params.containsKey(SftpOperationParamEnums.MIDDLE_FILE.toString());
+        }
+    };
+
     static {
         operationMap.put(SftpOperationTypeEnums.COPY.toString(), COPY_OPERATION);
         operationMap.put(SftpOperationTypeEnums.CREATE.toString(), CREATE_OPERATION);
@@ -455,6 +503,7 @@ public class SftpOperationFactory {
         operationMap.put(SftpOperationTypeEnums.FILE_EXISTS.toString(), FILE_EXISTS_OPERATION);
         operationMap.put(SftpOperationTypeEnums.DEL.toString(), DEL_OPERATION);
         operationMap.put(SftpOperationTypeEnums.HEALTH_CHECK.toString(), HEALTH_CHECK_OPERATION);
+        operationMap.put(SftpOperationTypeEnums.UPLOAD_AND_RENAME.toString(), UPLOAD_AND_RENAME_OPERATION);
     }
 
 }

@@ -34,30 +34,17 @@ public class SpFileSplitReaderTest {
 
     @Test
     public void testReadSliceFile() throws Exception {
-        String filePath = File.class.getResource("/reader/sp/data/data_split.txt").getPath();
+        String filePath = File.class.getResource("/TX_LM1_20190322_BlackList.TXT").getPath();
 
-        FileConfig config = new FileConfig(filePath, "/reader/sp/template/template3.json",
+        FileConfig config = new FileConfig(filePath, "/ANT_BlackList_TEMPLATE.json",
             new StorageConfig("nas"));
 
         FileSplitter splitter = FileFactory.createSplitter(config.getStorageConfig());
 
-        FileSlice headSlice = splitter.getHeadSlice(config);
-
-        FileConfig headConfig = config.clone();
-        headConfig.setPartial(headSlice.getStart(), headSlice.getLength(),
-            headConfig.getFileDataType());
-        FileReader headReader = FileFactory.createReader(headConfig);
-        try {
-            Map<String, Object> head = headReader.readHead(HashMap.class);
-            System.out.println(head);
-        } finally {
-            headReader.close();
-        }
-
-        FileSlice bodySlice = splitter.getBodySlice(config);
+        List<FileSlice> bodySliceList = splitter.getBodySlices(config, 4 * 1024 * 1024);
         FileConfig bodyConfig = config.clone();
-        bodyConfig.setPartial(bodySlice.getStart(), bodySlice.getLength(),
-            bodySlice.getFileDataType());
+        bodyConfig.setPartial(bodySliceList.get(0).getStart(), bodySliceList.get(0).getLength(),
+                bodySliceList.get(0).getFileDataType());
         FileReader bodyReader = FileFactory.createReader(bodyConfig);
         try {
             Map<String, Object> row = null;
@@ -68,17 +55,7 @@ public class SpFileSplitReaderTest {
             bodyReader.close();
         }
 
-        FileSlice tailSlice = splitter.getTailSlice(config);
-        FileConfig tailConfig = config.clone();
-        tailConfig.setPartial(tailSlice.getStart(), tailSlice.getLength(),
-            tailSlice.getFileDataType());
-        FileReader tailReader = FileFactory.createReader(tailConfig);
-        try {
-            Map<String, Object> tail = tailReader.readTail(HashMap.class);
-            System.out.println(tail);
-        } finally {
-            tailReader.close();
-        }
+
     }
 
     @Test

@@ -228,6 +228,47 @@ public class FileSftpStorage implements RdfFileStorageSpi {
 	}
 
 	@Override
+	public void uploadAndRename(String srcFile, String middleFile, String toFile, boolean override) {
+		boolean isExist = getFileInfo(toFile).isExists();
+
+		boolean result = false;
+		try {
+
+			if (!isExist || override) {
+				Map<String, String> params = new HashMap<String, String>();
+
+				params.put(SftpOperationParamEnums.SOURCE_FILE.toString(), srcFile);
+				params.put(SftpOperationParamEnums.TARGET_FILE.toString(), toFile);
+				params.put(SftpOperationParamEnums.MIDDLE_FILE.toString(), middleFile);
+
+				AbstractSftpOperationTemplate operationTemplate
+						= SftpOperationFactory.getOperation(SftpOperationTypeEnums.UPLOAD_AND_RENAME);
+
+				SftpOperationResponse<Boolean> response = operationTemplate.handle(sftpUserInfo, params);
+
+				if(!response.isSuccess()){
+					throw new RdfFileException("rdf-file#FileSftpStorage.uploadAndRename,sftp uploadAndRename file fail"
+							+ "，srcFile=" + srcFile + ",middleFile=" + middleFile + ",toFile=" + toFile, response.getError(), RdfErrorEnum.UNKOWN);
+				}
+				result = response.getData();
+			} else {
+				RdfFileLogUtil.common.warn("rdf-file#FileSftpStorage.uploadAndRename,file already exist,abort.toFile=" + toFile);
+
+				result = true;
+			}
+
+		} catch (Exception e) {
+			throw new RdfFileException("rdf-file#FileSftpStorage.uploadAndRename,sftp uploadAndRename file fail"
+					+ "，srcFile=" + srcFile + ",middleFile=" + middleFile + ",toFile=" + toFile, e, RdfErrorEnum.UNKOWN);
+		}
+
+		if (!result) {
+			throw new RdfFileException("rdf-file#FileSftpStorage.uploadAndRename,sftp uploadAndRename file fail"
+					+ "，srcFile=" + srcFile + ",middleFile=" + middleFile + ",toFile=" + toFile, RdfErrorEnum.UNKOWN);
+		}
+	}
+
+	@Override
 	public InputStream getInputStream(String filename) {
 		throw new RdfFileException("rdf-file#FileSftpStorage.getInputStream", RdfErrorEnum.UNSUPPORTED_OPERATION);
 	}
@@ -241,6 +282,8 @@ public class FileSftpStorage implements RdfFileStorageSpi {
 	public InputStream getTailInputStream(FileConfig fileConfig) {
 		throw new RdfFileException("rdf-file#FileSftpStorage.getTailInputStream", RdfErrorEnum.UNSUPPORTED_OPERATION);
 	}
+
+
 
 	@Override
 	public void init(StorageConfig config) {

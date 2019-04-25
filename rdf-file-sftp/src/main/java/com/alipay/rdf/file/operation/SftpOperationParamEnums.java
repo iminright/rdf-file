@@ -23,6 +23,11 @@ public enum SftpOperationParamEnums {
     TARGET_FILE,
 
     /**
+     * 中间文件
+     */
+    MIDDLE_FILE,
+
+    /**
      * 本地临时文件夹
      */
     LOCAL_TMP_PATH,

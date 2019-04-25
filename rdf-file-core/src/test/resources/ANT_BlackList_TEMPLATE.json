@@ -1,0 +1,13 @@
+{
+	"head": [
+		"Version|文件版本",
+		"totalCount|总笔数|Integer"
+	],
+	"body": [
+		"CertificateType|个人证件类型及机构证件型|REQUIRED",
+		"CertificateNo|证件号码|REQUIRED",
+		"InvestorName|姓名|REQUIRED"
+	],
+	"fileEncoding": "utf-8",
+	"protocol": "de"
+}

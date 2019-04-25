@@ -253,6 +253,11 @@ public class FileNasStorage implements RdfFileStorageSpi {
         recursiveDelete(new File(fullPath));
     }
 
+    @Override
+    public void uploadAndRename(String srcFile, String middleFile, String toFile, boolean override) {
+        throw new RdfFileException("rdf-file#FileNasStorage.uploadAndRename", RdfErrorEnum.UNSUPPORTED_OPERATION);
+    }
+
     /**
      * 将文件或文件夹复制到目标位置
      * @param srcPath

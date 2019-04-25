@@ -344,6 +344,11 @@ public class FileOssStorage implements RdfFileStorageSpi {
         }
     }
 
+    @Override
+    public void uploadAndRename(String srcFile, String middleFile, String toFile, boolean override) {
+        throw new RdfFileException("rdf-file#FileOssStorage.uploadAndRename", RdfErrorEnum.UNSUPPORTED_OPERATION);
+    }
+
     /**
      * 拷贝到另一个bucket
      * 
