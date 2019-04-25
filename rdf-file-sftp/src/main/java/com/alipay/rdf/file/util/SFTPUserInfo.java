@@ -321,6 +321,10 @@ public class SFTPUserInfo {
 		builder.append(host);
 		builder.append(", port=");
 		builder.append(port);
+		builder.append(", sessionTimeout=");
+		builder.append(sessionTimeout);
+		builder.append(", connectTimeout=");
+		builder.append(connectTimeout);
 		builder.append(", identityFile=");
 		builder.append(identityFile);
 		builder.append(", authType=");
@@ -364,6 +368,10 @@ public class SFTPUserInfo {
 		builder.append(host);
 		builder.append(", port=");
 		builder.append(port);
+		builder.append(", sessionTimeout=");
+		builder.append(sessionTimeout);
+		builder.append(", connectTimeout=");
+		builder.append(connectTimeout);
 		if(!simple){
 			builder.append(", authType=");
 			builder.append(authType);
