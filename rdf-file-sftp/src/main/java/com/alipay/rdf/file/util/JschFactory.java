@@ -105,6 +105,7 @@ public class JschFactory {
         Properties sshConfig = new Properties();
         sshConfig.put("StrictHostKeyChecking", "no");
         sshSession.setConfig(sshConfig);
+        sshSession.setTimeout(user.getSessionTimeout());
         return sshSession;
     }
 
@@ -126,6 +127,7 @@ public class JschFactory {
         JSch jsch = new JSch();
         jsch.addIdentity(user.getIdentityFile());
         Session sshSession = jsch.getSession(user.getUser(), user.getHost(), user.getPort());
+        sshSession.setTimeout(user.getSessionTimeout());
         return sshSession;
     }
 
@@ -163,6 +165,7 @@ public class JschFactory {
         if (RdfFileUtil.isNotBlank(user.getPassword())) {
             sshSession.setPassword(user.getPassword());
         }
+        sshSession.setTimeout(user.getSessionTimeout());
         return sshSession;
     }
 

@@ -125,7 +125,7 @@ public abstract class AbstractSftpOperationTemplate<T> {
 
         SftpThreadContext.setChannelSftp(channel);
 
-        channel.connect();
+        channel.connect(user.getConnectTimeout());
 
         RdfFileLogUtil.common.debug("rdf-file#SFTPHelper.openChannelSftp create channel success"
                 + ",user={" + user.toString(true, false) + "}");

@@ -38,6 +38,19 @@ public class SFTPUserInfo {
 	private String identityFile;
 
 	/**
+	 * 链接超时时间
+	 * 毫秒
+	 */
+	private int connectTimeout;
+
+	/**
+	 * session超时时间
+	 * socket超时时间
+	 * 毫秒
+	 */
+	private int sessionTimeout;
+
+	/**
 	 * 验证类型:
 	 * @see SftpAuthEnum
 	 * */
@@ -82,6 +95,8 @@ public class SFTPUserInfo {
 		this.port = sftpConfig.getPort();
 		this.authType = sftpConfig.getAuthEnum();
 		this.extraSessionConfig = sftpConfig.getExtraSessionConfig();
+		this.connectTimeout = sftpConfig.getConnectTimeout();
+		this.sessionTimeout = sftpConfig.getSessionTimeout();
 	}
 
 	/**
@@ -401,5 +416,21 @@ public class SFTPUserInfo {
 	 */
 	public void setExtraSessionConfig(Properties extraSessionConfig) {
 		this.extraSessionConfig = extraSessionConfig;
+	}
+
+	public int getConnectTimeout() {
+		return connectTimeout;
+	}
+
+	public void setConnectTimeout(int connectTimeout) {
+		this.connectTimeout = connectTimeout;
+	}
+
+	public int getSessionTimeout() {
+		return sessionTimeout;
+	}
+
+	public void setSessionTimeout(int sessionTimeout) {
+		this.sessionTimeout = sessionTimeout;
 	}
 }
