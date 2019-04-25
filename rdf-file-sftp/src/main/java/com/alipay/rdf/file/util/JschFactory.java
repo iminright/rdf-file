@@ -75,7 +75,11 @@ public class JschFactory {
         }
 
         try {
+            RdfFileLogUtil.common.info("rdf-file#JschFactory.openConnection session.connect start"
+                    + ",user={" + user.toString(true, false) + "}");
             session.connect();
+            RdfFileLogUtil.common.info("rdf-file#JschFactory.openConnection session.connect end"
+                    + ",user={" + user.toString(true, false) + "}");
         }catch (JSchException e){
             throw new RdfFileException("rdf-file#JschFactory.openConnection异常,user="
                     + user.toString(true, true)
