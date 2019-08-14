@@ -349,6 +349,9 @@ public class FileConfig implements Cloneable {
         config.setRowValidators(rowValidators);
         config.setInputStream(is);
         config.setColumnSplit(columnSplit);
+        for(String processKey : processorKeys){
+            config.addProcessorKey(processKey);
+        }
         config.params = params;
 
         return config;
